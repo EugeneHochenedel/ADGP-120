@@ -1,9 +1,9 @@
 import sys, pygame
 #pygame.init()
 
-size = width, height = [1280, 720]
+size = width, height = [1292, 722]
 black = (0, 0, 0)
-white = (255, 255, 255)
+grey = (128, 128, 128)
 other = (0, 255, 0)
 
 screen = pygame.display.set_mode(size)
@@ -14,12 +14,11 @@ while not done:
 		if event.type == pygame.QUIT: done=True
 	
 	screen.fill(black)
-	for i in range(4, width, 30):
-		for x in range(3, height, 30):
-			if i <= width:
-				pygame.draw.rect(screen, other, [i, x, 25, 25])
-			#	pygame.draw.line(screen, white, [i, 0], [i, 720], 2)
-			#	pygame.draw.line(screen, white, [0, x], [1280, x], 2)
+	for i in range(0, width, 30):
+		for x in range(0, height, 30):
+			pygame.draw.rect(screen, other, [i + 4, x + 3, 25, 25])
+			pygame.draw.line(screen, grey, [i + 1, 0], [i + 1, 722], 5)
+			pygame.draw.line(screen, grey, [0, x], [1288, x], 5)
 			
 	pygame.display.flip()
 
