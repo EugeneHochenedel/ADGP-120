@@ -1,6 +1,7 @@
 #This script will contain the code specific to the A* pathing
-import math
-
+import math, pygame
+#from math import *
+#from Nodes import *
 
 class AStarPath(object):
 	def __init__(self, Space, Beginning, End, area):
@@ -8,7 +9,7 @@ class AStarPath(object):
 		self.CloseList = []
 		self.Route = []
 		self._plot = Space
-		self._first = Beginning = Start
+		self._first = Beginning
 		self._last = End
 		self._current = self._first
 		self.xRows = area[0]
@@ -46,26 +47,26 @@ class AStarPath(object):
 		print(open)
 		
 		while open:
-			open.sort(key = lambda x : x.f)
+			open.sort(key = lambda x : x.fValue)
 			CurrentNode = open[0]
 			open.remove(CurrentNode)
 			close.append(CurrentNode)
 			i = 0
 			for adj in current.adjacents:
-				if not adj is walkable or adj in close:
+				if not adj is traverse or adj in close:
 					return False
-				elif not adj in open and not adj in close and adj is walkable:
+				elif not adj in open and not adj in close and adj is traverse:
 					open.append(adj)
 					adj.parent = CurrentNode
-					adj.g = 10 if i < 4 else 14
+					adj.gValue = 10 if i < 4 else 14
 					'''adj.h = HVal(current, last)
 					adj.f = adj.g + adj.f'''
 				elif adj in open:
 					movement = 10 if i < 4 else 14
 					movecost = movement + CurrentNode.g
-					if movecost < adj.g:
+					if movecost < adj.gValue:
 						adj.parent = CurrentNode
-						adj.g = movecost
+						adj.gValue = movecost
 				if last in close or not last and open == none:
 					self.Route = self.GetRoute(last)
 					break;
@@ -87,10 +88,10 @@ class AStarPath(object):
 			node.adjacents = []
 		rows = self.xRows
 		columns = self.yColumns
-		bottom  = node.id + 1
-		top = node.id - 1
-		right = node.id + rows
-		left = node.id - rows
+		bottom  = node._id + 1
+		top = node._id - 1
+		right = node._id + rows
+		left = node._id - rows
 		tRight = right - 1
 		bRight = right + 1
 		tLeft = left - 1
@@ -98,9 +99,8 @@ class AStarPath(object):
 		adjs = [top, bottom, left, right, tLeft, bLeft, tRight, bRight]
 		for i in adjs:
 			if i in self._plot:
-				if i in self._plot:
-					if self._plot[i].walkable:
-						node.adjacents.append(self._plot[i])
+				if self._plot[i].traverse:
+					node.adjacents.append(self._plot[i])
 
 #Pseudocode
 '''
