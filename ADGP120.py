@@ -60,18 +60,18 @@ class Game:
 		self.WIDTH = 30
 		self.HEIGHT = 30
 		
-		for x in range(self.yColumns):
-			for y in range(self.xRows):
+		for x in range(self.COLS):
+			for y in range(self.ROWS):
 				
 				n = Points(x, y, id)
 				
 				if(x >= 5 and x <= 6 and y >= 5 and y <= 8):
 					n._passable = False
 					
-				TopWall = True if y % self.xRows == 0 else False
-				BottomWall = True if y % self.xRows == self.xRows - 1 else False
-				LeftWall = True if x % self.yColumns == 0 else False
-				RightWall = True if x % self.yColumns == self.yColumns - 1 else False
+				TopWall = True if y % self.ROWS == 0 else False
+				BottomWall = True if y % self.ROWS == self.ROWS - 1 else False
+				LeftWall = True if x % self.COLS == 0 else False
+				RightWall = True if x % self.COLS == self.COLS - 1 else False
 				
 				if(TopWall or BottomWall or LeftWall or RightWall):
 					n._passable = False
@@ -84,14 +84,14 @@ class Game:
 		
 		mod = 15
 		for i in range(50 + 50 + 50):
-			rng = random.randint(0,(self.xRows-1) * (self.yColumns-1))
+			rng = random.randint(0,(self.ROWS-1) * (self.COLS-1))
 			self.search_space[rng]._passable = False
 			
 			
 			
 		pad = (5,5)
-		screen_width = self.yColumns * (pad[0] + self.width) + pad[1]
-		screen_height = self.xRows * (pad[0] + self.height) + pad[1]
+		screen_width = self.COLS * (pad[0] + self.WIDTH) + pad[1]
+		screen_height = self.ROWS * (pad[0] + self.HEIGHT) + pad[1]
 		
 		
 		self.screen = pygame.display.set_mode((screen_width, screen_height), RESIZABLE)
@@ -161,7 +161,7 @@ class Game:
 											self.goal = cb
 											self.goal.details()
 											
-											self.algo = AStarPath(self.search_space, self.start, self.goal,(self.xRows,self.yColumns))
+											self.algo = AStarPath(self.search_space, self.start, self.goal,(self.ROWS,self.COLS))
 											
 											self.gen = self.algo.Active()
 											

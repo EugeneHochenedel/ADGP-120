@@ -3,9 +3,9 @@ import math
 
 class AStarPath(object):
 	def __init__(self, Space, Beginning, End, area):
-		self.OpenList = []
-		self.CloseList = []
-		self.Route = []
+		self.Open = []
+		self.Close = []
+		self.ROUTE = []
 		self._plot = Space
 		self._first = Beginning
 		self._last = End
@@ -87,7 +87,7 @@ class AStarPath(object):
 	def SetAdjacents(self, node):
 		if node.adjacents:
 			node.adjacents = []
-		rows = self.xRows
+		rows = self.ROWS
 		columns = self.yColumns
 		bottom  = node._id + 1
 		top = node._id - 1
