@@ -20,9 +20,9 @@ class Points(object):
 		self._gValue = 0
 		self._hValue = 0
 		self._fValue = 0
-		Dimensions = 40
-		self.width, self.height = [Dimensions, Dimensions]
-		self._id = id
+		DIMENSIONS = 60
+		self.width, self.height = DIMENSIONS, DIMENSIONS
+		self.id = id
 		self.index = (x, y)
 		self.x = (self.width + 5) * x + 5
 		self.y = (self.height + 5) * y + 5
@@ -31,18 +31,18 @@ class Points(object):
 		self.square = pygame.Rect(self.x, self.y, self.width, self.height)
 		self.placement = pygame.Surface((self.width, self.height)) #Only required arguments for pygame.Surface are the sizes.
 		self.marked = False
-		self._color = White
+		self._color = Yellow
 		
 	@property #Turns the traverse() method into a read-only attribute getter of the same name 
 	def traverse(self):
 		return self._passable
 	@traverse.setter #Creates a copy of the traverse property that can be accessed
 	def traverse(self, value):
-		white = (255, 255, 255)
+		yellow = (255, 255, 0)
 		red = (255, 0, 0)
 		self._passable = value
 		if value:
-			self.color = (255, 255, 255)
+			self.color = (255, 255, 0)
 		else:
 			self.color = (255, 0, 0)
 		
@@ -51,25 +51,27 @@ class Points(object):
 	def fValue(self):
 		return self._fValue
 	
-	@fValue.setter
-	def fValue(self, value):
-		self._fValue = value
+	@property
+	def hValue(self):
+		return self._hValue
 		
 	@property
 	def gValue(self):
 		return self._gValue
 	
+	@fValue.setter
+	def fValue(self, value):
+		self._fValue = value
+	
 	@gValue.setter
 	def gValue(self, value):
 		self._gValue = value
-	
-	@property
-	def hValue(self):
-		return self._hValue
+		self._fValue = self._gValue + self._hValue
 	
 	@hValue.setter
 	def hValue(self, value):
-		self._hValue = value * 10
+		self._hValue = value
+		self._fValue = self._gValue + self._hValue
 	
 	@property
 	def Colors(self):
@@ -77,7 +79,7 @@ class Points(object):
 	
 	@Colors.setter
 	def Colors(self, value):
-		white = (255, 255, 255)
+		yellow = (255, 255, 0)
 		red = (255, 0, 0)
 		
 		if value is red:
@@ -85,16 +87,14 @@ class Points(object):
 			self.marked = True
 		else:
 			self._color = value
-		
-		
-		
+
 		self._color = value
 	
 	def details(self):
 		print("Position =", self.position)
 		ids = " "
 		for i in self.adjacents:
-			ids += " " + str(i._id)
+			ids += str(i.id) + " " + str(i.index)
 		print("Neighbors: ", ids)
 		print("Index: ", self.index)
 
@@ -103,14 +103,17 @@ class Points(object):
 		screen.blit(self.placement, self.screenPosition)
 		if self.traverse:
 		#	self.Colors(Grey)
-			textf = font.render("F = " + str(self.fValue), True, (1, 1, 1))
-			textgh = font.render("G = " + str(self.gValue) + "H = " + str(self.hValue), True, (1, 1, 1))
-			textfpos =  (self.x, self.y)
-			textghpos = (self.x, self.y + self.height - 10)
+			textf = font.render("F = " + str(self.fValue), True, (Violet))
+			textg = font.render("G = " + str(self.gValue), True, (Violet))
+			texth = font.render("H = " + str(self.hValue), True, (Violet))
+			textfpos =  (self.x + 1, self.y)
+			textgpos = (self.x + 1, self.y + self.height - 20)
+			texthpos = (self.x + 1, self.y + self.height - 10)
 			
 			if init and text:
 				screen.blit(textf, textfpos)
-				screen.blit(textgh, textghpos)
+				screen.blit(textg, textgpos)
+				screen.blit(texth, texthpos)
 	
 	
 	def onClick(self, position):

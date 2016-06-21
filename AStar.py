@@ -3,8 +3,8 @@ import math
 
 class AStarPath(object):
 	def __init__(self, Space, Beginning, End, area):
-		self.Open = []
-		self.Close = []
+		self.OPENLIST = []
+		self.CLOSELIST = []
 		self.ROUTE = []
 		self._plot = Space
 		self._first = Beginning
@@ -26,19 +26,24 @@ class AStarPath(object):
 	def Reset(self):
 		for x in self._plot:
 			node = self._plot[x]
-			node.parent = None
-			node.g = 0
-			node.f = 0
-			node.h = 0
+			node.parental = None
+			node.gValue = 0
+			node.fValue = 0
+			node.hValue = 0
+		
 			self.SetAdjacents(node)
-			dist = int(math.fabs(self._last.index[0] - node.index[0]) + math.fabs(self._last.index[1] - node.index[1]))
-			dist *= 10
-			node.h = dist
+			xValues = int(math.fabs(self._last.index[0] - node.index[0]))
+			yValues = int(math.fabs(self._last.index[1] - node.index[1]))
+			if xValues > yValues:
+				node.hValue = 14 * yValues + 10 * (xValues - yValues)
+			else:
+				node.hValue = 14 * xValues + 10 * (xValues + yValues)
+		print("Node H: ", node.hValue)
 			
 	def Active(self):
 		self.Reset()
-		open = self.OpenList
-		close = self.CloseList
+		open = self.OPENLIST
+		close = self.CLOSELIST
 		start = self._first
 		last = self._last
 		open.append(start)
@@ -47,52 +52,48 @@ class AStarPath(object):
 		while open:
 			open.sort(key = lambda x : x.fValue)
 			CurrentNode = open[0]
-			yield CurrentNode
-			if last in open:
-				self.Route = self.GetRoute(last)
-				break;
 			
 			open.remove(CurrentNode)
 			close.append(CurrentNode)
 			i = 0
-			for adj in self._current.adjacents:
-				if adj.traverse and adj not in open and adj not in close:
-					open.append(adj)
-					adj.parent = CurrentNode
-					adj.gValue = 10 if i < 4 else 14
-					'''adj.h = HVal(current, last)
-					adj.f = adj.g + adj.f'''
-				elif adj in open:
-					movement = 10 if i < 4 else 14
-					movecost = movement + CurrentNode.g
-					if movecost < adj.gValue:
-						adj.parent = CurrentNode
-						adj.gValue = movecost
-				if last in close or not last and open == none:
-					self.Route = self.GetRoute(last)
-					break;
+			for adj in CurrentNode.adjacents:
+				if adj.traverse and adj not in close:
+					if adj not in open:
+						open.append(adj)
+						adj.parental = CurrentNode
+						adj.gValue = 10 if i < 4 else 14
+					else:
+						adj.parental = CurrentNode
+						adj.gValue = 10 if i < 4 else 14
+						movecost = 1.414 + adj.gValue
+						if movecost < adj.gValue:
+							adj.parental = CurrentNode
+							adj.gValue = movecost
 				i = i + 1
+			if last is open:
+				self.ROUTE = self.GetRoute(last)
+				break;
 				
 	def TestStart(self):
 		self.CurrentNode = self._first
 		
 	def GetRoute(self, node):
-		path = self.Route
+		path = []
 		CurrentNode = node
-		while(not CurrentNode == self._first):
-			path.append(CurrentNode.parent)
-			CurrentNode = CurrentNode.parent
+		while(CurrentNode != self._first):
+			path.append(CurrentNode.parental)
+			CurrentNode = CurrentNode.parental
 		return path
 		
 	def SetAdjacents(self, node):
 		if node.adjacents:
 			node.adjacents = []
-		rows = self.ROWS
+		rows = self.xRows
 		columns = self.yColumns
-		bottom  = node._id + 1
-		top = node._id - 1
-		right = node._id + rows
-		left = node._id - rows
+		bottom  = node.id + 1
+		top = node.id - 1
+		right = node.id + rows
+		left = node.id - rows
 		tRight = right - 1
 		bRight = right + 1
 		tLeft = left - 1
