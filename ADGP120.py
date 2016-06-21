@@ -55,10 +55,10 @@ class Game:
 		self.mouse_listeners = []
 		
 		id = 0
-		self.xRows = 20
-		self.yColumns = 50
-		self.width = 30
-		self.height = 30
+		self.ROWS = 20
+		self.COLS = 50
+		self.WIDTH = 30
+		self.HEIGHT = 30
 		
 		for x in range(self.yColumns):
 			for y in range(self.xRows):
