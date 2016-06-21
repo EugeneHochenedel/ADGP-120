@@ -29,7 +29,7 @@ class Points(object):
 		self.position = (self.width * x, self.height * y)
 		self.screenPosition = (self.x, self.y)
 		self.square = pygame.Rect(self.x, self.y, self.width, self.height)
-		self.placement = pygame.Surface((self.width, size.height)) #Only required arguments for pygame.Surface are the sizes.
+		self.placement = pygame.Surface((self.width, self.height)) #Only required arguments for pygame.Surface are the sizes.
 		self.marked = False
 		self._color = White
 		
@@ -38,13 +38,14 @@ class Points(object):
 		return self._passable
 	@traverse.setter #Creates a copy of the traverse property that can be accessed
 	def traverse(self, value):
-		#white = (255, 255, 255)
-		#red = (255, 0, 0)
-		#if value:
-		#	self.color = (255, 255, 255)
-		#else:
-		#	self.color = (255, 0, 0)
+		white = (255, 255, 255)
+		red = (255, 0, 0)
 		self._passable = value
+		if value:
+			self.color = (255, 255, 255)
+		else:
+			self.color = (255, 0, 0)
+		
 		
 	@property
 	def fValue(self):
@@ -76,14 +77,17 @@ class Points(object):
 	
 	@Colors.setter
 	def Colors(self, value):
-	#	white = (255, 255, 255)
-	#	red = (255, 0, 0)
+		white = (255, 255, 255)
+		red = (255, 0, 0)
 		
-	#	if value is red:
-	#		self.Color = value
-	#		self.marked = True
-	#	else:
-	#		self.Color = value
+		if value is red:
+			self._color = value
+			self.marked = True
+		else:
+			self._color = value
+		
+		
+		
 		self._color = value
 	
 	def details(self):
@@ -97,20 +101,20 @@ class Points(object):
 	def drawing(self, screen, font, init = True, text = True):
 		self.placement.fill(self._color)
 		screen.blit(self.placement, self.screenPosition)
-		if self.traverse == True:
+		if self.traverse:
 		#	self.Colors(Grey)
-			textf = font.render("F = " + str(self.f), True, (1, 1, 1))
-			textgh = font.render("G = " + str(self.g) + "H = " + str(self.h), True, (1, 1, 1))
+			textf = font.render("F = " + str(self.fValue), True, (1, 1, 1))
+			textgh = font.render("G = " + str(self.gValue) + "H = " + str(self.hValue), True, (1, 1, 1))
 			textfpos =  (self.x, self.y)
 			textghpos = (self.x, self.y + self.height - 10)
 			
 			if init and text:
 				screen.blit(textf, textfpos)
 				screen.blit(textgh, textghpos)
-				'''	#if self.traverse == False:
+	
 	
 	def onClick(self, position):
-		originalColor = self.colors
+		originalColor = self._color
 		newColor = Grey
 		x = position[0]
 		y = position[1]
@@ -119,4 +123,4 @@ class Points(object):
 			if(self.marked == False):
 				self._color = newColor
 			o = self
-		return o'''
+		return o

@@ -1,7 +1,5 @@
 #This script will contain the code specific to the A* pathing
-import math, pygame
-#from math import *
-#from Nodes import *
+import math
 
 class AStarPath(object):
 	def __init__(self, Space, Beginning, End, area):
@@ -32,8 +30,8 @@ class AStarPath(object):
 			node.g = 0
 			node.f = 0
 			node.h = 0
-			self.SetAdjacent(node)
-			dist = int(math.abs(self._last.index[0] - node.index[0]) + math.abs(self._last.index[1] - node.index[1]))
+			self.SetAdjacents(node)
+			dist = int(math.fabs(self._last.index[0] - node.index[0]) + math.fabs(self._last.index[1] - node.index[1]))
 			dist *= 10
 			node.h = dist
 			
@@ -49,13 +47,16 @@ class AStarPath(object):
 		while open:
 			open.sort(key = lambda x : x.fValue)
 			CurrentNode = open[0]
+			yield CurrentNode
+			if last in open:
+				self.Route = self.GetRoute(last)
+				break;
+			
 			open.remove(CurrentNode)
 			close.append(CurrentNode)
 			i = 0
-			for adj in current.adjacents:
-				if not adj is traverse or adj in close:
-					return False
-				elif not adj in open and not adj in close and adj is traverse:
+			for adj in self._current.adjacents:
+				if adj.traverse and adj not in open and adj not in close:
 					open.append(adj)
 					adj.parent = CurrentNode
 					adj.gValue = 10 if i < 4 else 14
