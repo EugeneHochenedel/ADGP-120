@@ -1,5 +1,25 @@
 #This script will contain the code specific to the A* pathing
-import math
+import math, Nodes
+
+Lime =(0,255,0)
+Cyan =(0,255,255)
+Magenta =(255,0,255)
+Silver =(192,192,192)
+Maroon =(128,0,0)
+Olive =(128,128,0)
+Teal =(0,128,128)
+Navy =(0,0,128)
+Sky = (128, 128, 255)
+Red = (255, 0, 0)
+Orange = (255, 165, 0)
+Yellow = (255, 255, 0)
+Green = (0, 255, 0)
+Blue = (0, 0, 255)
+Indigo = (75, 0, 130)
+Violet = (238, 130, 238)
+Black = (0, 0, 0)
+White = (255, 255, 255)
+Grey = (128, 128, 128)
 
 class AStarPath(object):
 	def __init__(self, Space, Beginning, End, area):
@@ -41,11 +61,10 @@ class AStarPath(object):
 		print("Node H: ", node.hValue)
 			
 	def Active(self):
-		self.Reset()
+	#	self.Reset()
 		open = self.OPENLIST
 		close = self.CLOSELIST
 		start = self._first
-		last = self._last
 		open.append(start)
 		print(open)
 		
@@ -67,22 +86,24 @@ class AStarPath(object):
 						adj.gValue = 10 if i < 4 else 14
 						movecost = 1.414 + adj.gValue
 						if movecost < adj.gValue:
-							adj.parental = CurrentNode
+							adj.parental = self._last
 							adj.gValue = movecost
-				i = i + 1
-			if last is open:
-				self.ROUTE = self.GetRoute(last)
+					i = i + 1
+			if self._last is open:
+				self.ROUTE = self.GetRoute(self._last)
 				break;
 				
 	def TestStart(self):
 		self.CurrentNode = self._first
 		
 	def GetRoute(self, node):
-		path = []
+		path = self.CLOSELIST
 		CurrentNode = node
-		while(CurrentNode != self._first):
+		while(CurrentNode != self._last):
 			path.append(CurrentNode.parental)
 			CurrentNode = CurrentNode.parental
+
+			break;
 		return path
 		
 	def SetAdjacents(self, node):

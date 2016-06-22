@@ -7,12 +7,10 @@ import pygame
 import AStar
 import Nodes
 import math
-import os
 import pygame.locals
 import random
 from AStar import *
 from Nodes import *
-from pygame import mixer
 from pygame.locals import *
 '''
 from os import *
@@ -22,15 +20,6 @@ from pygame import *
 '''
 
 #Color	#(R,G,B)
-Lime =(0,255,0)
-Cyan =(0,255,255)
-Magenta =(255,0,255)
-Silver =(192,192,192)
-Maroon =(128,0,0)
-Olive =(128,128,0)
-Teal =(0,128,128)
-Navy =(0,0,128)
-Sky = (128, 128, 255)
 Red = (255, 0, 0)
 Orange = (255, 165, 0)
 Yellow = (255, 255, 0)
@@ -41,36 +30,37 @@ Violet = (238, 130, 238)
 Black = (0, 0, 0)
 White = (255, 255, 255)
 Grey = (128, 128, 128)
+Teal =(0,128,128)
 
 class Game:
 	def __init__(self):
-		os.environ['SDL_VIDEO_CENTERED'] = '1'
-		path = os.path.dirname(os.path.realpath("__file__"))
+		#os.environ['SDL_VIDEO_CENTERED'] = '1'
+		#path = os.path.dirname(os.path.realpath("__file__"))
 		pygame.init()
 		pygame.font.init()
-		pygame.mixer.pre_init(44100, -16, 1, 512)
-		pygame.mixer.init()
 		
 		self.search_space = {}
 		self.mouse_listeners = []
 		
+		#Used to give each cell an independent numeric value
 		id = 0
+		
+		#Determines the number of rows and columns
 		self.XROW = 20
-		self.YCOL = 50
-		self.WIDTH = 30
-		self.HEIGHT = 30
+		self.YCOL = 20
+		#Determines the size of the game window
+		self.WIDTH = 40
+		self.HEIGHT = 40
 		
 		for x in range(self.YCOL):
 			for y in range(self.XROW):
 				
 				n = Points(x, y, id)
 					
-				TopWall = True if y % self.XROW == 0 else False
-				BottomWall = True if y % self.XROW == self.XROW - 1 else False
-				LeftWall = True if x % self.YCOL == 0 else False
-				RightWall = True if x % self.YCOL == self.YCOL - 1 else False
+				xWall = True if y % self.XROW == 0 or y % self.XROW == self.XROW - 1 else False
+				yWall = True if x % self.YCOL == 0 or x % self.YCOL == self.YCOL - 1 else False
 				
-				if(TopWall or BottomWall or LeftWall or RightWall):
+				if(xWall or yWall):
 					n._passable = False
 					n._color = Red
 					
@@ -106,7 +96,7 @@ class Game:
 		self.init = False
 		self.goal = None
 		self.defense = None
-		self.algo = None
+		self.algo = AStarPath(self.search_space, self.start, self.goal,(self.XROW,self.YCOL))
 		self.gen = None
 		self.delay = 50
 		
@@ -137,17 +127,19 @@ class Game:
 						if cb:
 							if cb:
 								if event.button == 1:
-									self.reset_color()
-									init = False
-									if self.algo:
-										self.algo.Reset()
-										self.gen = None
-									if not cb.marked:
-										print("set start")
-										cb.details()
-										self.start = cb
+									if(not self.Paused):
+										self.reset_color()
+										init = False
+										if self.algo:
+											self.algo.Reset()
+											self.gen = None
+											
+										if not cb.marked:
+											print("set start")
+											cb.details()
+											self.start = cb
 									
-								elif event.button == 2 or event.button == 4 or event.button == 5:
+								if event.button == 2 or event.button == 4 or event.button == 5:
 									if(not self.Paused):
 										self.init = True
 										self.defense = cb
@@ -158,12 +150,16 @@ class Game:
 										self.init = False
 										break
 
-								elif event.button == 3:
+								if event.button == 3:
 									if(not self.Paused):
 										self.reset_color()
 										print("right click")
+										if self.algo:
+											self.algo.Reset()
+											#self.gen = None
+											#self.goal.Reset()
+											#self.start.Reset()
 										if self.start is None:
-											print("Must set start")
 											self.init = False
 											break
 											
@@ -172,19 +168,14 @@ class Game:
 											self.goal = cb
 											self.goal.details()
 											
-											self.algo = AStarPath(self.search_space, self.start, self.goal,(self.XROW,self.YCOL))
+											
 											self.gen = self.algo.Active()
-										
 										
 				if event.type == pygame.KEYDOWN:
 					if event.key == pygame.K_ESCAPE:
 						self.Running = False
 					if event.key == pygame.K_f:
 						self.Paused = not self.Paused
-						if self.Paused:
-							pygame.mixer.pause()
-						if not self.Paused:
-							pygame.mixer.unpause()
 					if event.key == pygame.K_q:
 						print (self.delay),
 					if event.key == pygame.K_r:
@@ -204,14 +195,16 @@ class Game:
 			for i in self.search_space:
 				self.search_space[i].drawing(self.background, self.font1, self.init, debug)
 				
-			for i in self.search_space:
+			
 				pointers = self.search_space[i]
 				if pointers.parental:
 					parentmid = (pointers.parental.square.centerx, pointers.parental.square.centery)
 					selfmid = (pointers.square.centerx, pointers.square.centery)
-					newrect = pointers.square.inflate((pointers.width/1.25) * -1,(pointers.height/1.25) * -1)
+					newrect = pointers.square.inflate((pointers.DIMENSIONS/1.25) * -1,(pointers.DIMENSIONS/1.25) * -1)
 					pygame.draw.ellipse(self.screen, (100,25,255), newrect, 1)
 					pygame.draw.aaline(self.screen, (Olive), selfmid, parentmid, 5)
+					
+					#pointers.parental._color =White
 			try:
 				self.start._color = Green
 				self.goal._color = Grey
@@ -227,20 +220,19 @@ class Game:
 					try:
 						
 						self.current = self.gen.next()
-						adj = self.gen.next()
-						adj.color = Olive
+						#adj = self.gen.next()
+						self.current.color = Olive
 						
 						pygame.time.wait(self.delay)
 						
 						if(self.current is not self.start):
-							self.current._color = Olive
+							self.current._color = White
 							
 					except StopIteration:
 						for i in self.algo.ROUTE:
 							if i is not self.start:
 								i._color = Olive
-						
-						print("finished")
+
 						
 						
 			else:
