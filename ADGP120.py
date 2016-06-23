@@ -47,10 +47,10 @@ class Game:
 		
 		#Determines the number of rows and columns
 		self.XROW = 20
-		self.YCOL = 20
+		self.YCOL = 50
 		#Determines the size of the game window
-		self.WIDTH = 40
-		self.HEIGHT = 40
+		self.WIDTH = 30
+		self.HEIGHT = 30
 		
 		for x in range(self.YCOL):
 			for y in range(self.XROW):
@@ -61,8 +61,8 @@ class Game:
 				yWall = True if x % self.YCOL == 0 or x % self.YCOL == self.YCOL - 1 else False
 				
 				if(xWall or yWall):
-					n._passable = False
-					n._color = Red
+					n.traverse = False
+					n.Colors
 					
 				self.mouse_listeners.append(n.onClick)
 				
@@ -70,11 +70,11 @@ class Game:
 				id+=1
 		
 		
-		mod = 15
-		for i in range(50 * 3):
+		#mod = 15
+		for i in range(50 * 2):
 			rng = random.randint(0,(self.XROW-1) * (self.YCOL-1))
-			self.search_space[rng]._passable = False
-			self.search_space[rng]._color = Red
+			self.search_space[rng].traverse = False
+			self.search_space[rng].Colors
 			
 			
 			
@@ -96,7 +96,7 @@ class Game:
 		self.init = False
 		self.goal = None
 		self.defense = None
-		self.algo = AStarPath(self.search_space, self.start, self.goal,(self.XROW,self.YCOL))
+		self.algo = None
 		self.gen = None
 		self.delay = 50
 		
@@ -104,12 +104,12 @@ class Game:
 		self.background = self.background.convert()
 		self.background.fill(Black)
 		
-	def reset_color(self):
-		for i in self.search_space:
-			if self.search_space[i]._passable:
-				self.search_space[i].color = Yellow
-			else:
-				self.search_space[i].color = Red
+	#def reset_color(self):
+	#	for i in self.search_space:
+	#		if self.search_space[i].traverse:
+	#			self.search_space[i].Colors
+	#		else:
+	#			self.search_space[i].Colors
 	
 
 	
@@ -128,7 +128,7 @@ class Game:
 							if cb:
 								if event.button == 1:
 									if(not self.Paused):
-										self.reset_color()
+										#self.reset_color()
 										init = False
 										if self.algo:
 											self.algo.Reset()
@@ -136,29 +136,23 @@ class Game:
 											
 										if not cb.marked:
 											print("set start")
-											cb.details()
 											self.start = cb
 									
-								if event.button == 2 or event.button == 4 or event.button == 5:
+								elif event.button == 2 or event.button == 4 or event.button == 5:
 									if(not self.Paused):
 										self.init = True
 										self.defense = cb
-										cb.traverse = False
-										self.defense = cb
-										self.defense._color = Maroon
+										cb.traverse = not cb.traverse
+										self.defense.Colors
+										
 									else:
 										self.init = False
 										break
 
-								if event.button == 3:
+								elif event.button == 3:
 									if(not self.Paused):
-										self.reset_color()
-										print("right click")
-										if self.algo:
-											self.algo.Reset()
-											#self.gen = None
-											#self.goal.Reset()
-											#self.start.Reset()
+										#self.reset_color()
+										
 										if self.start is None:
 											self.init = False
 											break
@@ -166,10 +160,14 @@ class Game:
 										else:
 											self.init = True
 											self.goal = cb
-											self.goal.details()
+
 											
-											
+											self.algo = AStarPath(self.search_space, self.start, self.goal,(self.XROW,self.YCOL))
 											self.gen = self.algo.Active()
+											
+									else:
+										if cb is not self.start or cb is not self.goal:
+											cb.traverse = not cb.traverse
 										
 				if event.type == pygame.KEYDOWN:
 					if event.key == pygame.K_ESCAPE:
@@ -184,7 +182,8 @@ class Game:
 					if event.key == pygame.K_q:
 						self.delay -= 15					
 					if event.key == pygame.K_d:
-						debug = not debug
+						if(not self.Paused):
+							debug = not debug
 				if event.type == pygame.QUIT:
 					self.Running = False
 					
@@ -196,15 +195,15 @@ class Game:
 				self.search_space[i].drawing(self.background, self.font1, self.init, debug)
 				
 			
-				pointers = self.search_space[i]
-				if pointers.parental:
-					parentmid = (pointers.parental.square.centerx, pointers.parental.square.centery)
-					selfmid = (pointers.square.centerx, pointers.square.centery)
-					newrect = pointers.square.inflate((pointers.DIMENSIONS/1.25) * -1,(pointers.DIMENSIONS/1.25) * -1)
+				Nodes = self.search_space[i]
+				if Nodes.parental:
+					parentmid = (Nodes.parental.square.centerx, Nodes.parental.square.centery)
+					selfmid = (Nodes.square.centerx, Nodes.square.centery)
+					newrect = Nodes.square.inflate((Nodes.DIMENSIONS/1.25) * -1,(Nodes.DIMENSIONS/1.25) * -1)
 					pygame.draw.ellipse(self.screen, (100,25,255), newrect, 1)
 					pygame.draw.aaline(self.screen, (Olive), selfmid, parentmid, 5)
 					
-					#pointers.parental._color =White
+					#Nodes.parental._color =White
 			try:
 				self.start._color = Green
 				self.goal._color = Grey
@@ -216,26 +215,27 @@ class Game:
 				textrect = bg.get_rect()
 			
 			if(not self.Paused):
-				if self.gen == pointers:
+				if self.gen:
 					try:
 						
-						self.current = self.gen.next()
-						#adj = self.gen.next()
-						self.current.color = Olive
+						self.CurrentNode = self.gen.next()
+						adj = self.gen.next()
+						adj._color = Yellow
 						
-						pygame.time.wait(self.delay)
 						
-						if(self.current is not self.start):
-							self.current._color = White
+						if(self.CurrentNode is not self.goal):
+							self.CurrentNode._color = Teal
 							
 					except StopIteration:
 						for i in self.algo.ROUTE:
 							if i is not self.start:
 								i._color = Olive
+								
+								self.gen = None
 
 						
 						
-			else:
+			if(self.Paused is True):
 				bg.blit(self.font2.render("PAUSED", True, White), textrect.move(5,10))
 				bg.blit(self.font2.render("Press F to unpause", True, White), textrect.move(5, 35))
 				bg.blit(self.font2.render("Left click to set the start point", True, White), textrect.move(5,60))

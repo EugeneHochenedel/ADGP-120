@@ -1,5 +1,6 @@
 #This script will contain the code specific to the A* pathing
-import math, Nodes
+import math
+from math import *
 
 Lime =(0,255,0)
 Cyan =(0,255,255)
@@ -36,41 +37,55 @@ class AStarPath(object):
 		self.Reset()
 	
 	@property
-	def CurrentNode(self):
+	def CurrentNode(self, value):
 		return self._current
 	
 	@CurrentNode.setter
 	def CurrentNode(self, value):
 		self._current = value
 		
+		
 	def Reset(self):
 		for x in self._plot:
 			node = self._plot[x]
 			node.parental = None
+			node.hValue = 0
 			node.gValue = 0
 			node.fValue = 0
-			node.hValue = 0
-		
+		for x in self._plot:
+			node = self._plot[x]
 			self.SetAdjacents(node)
+			
 			xValues = int(math.fabs(self._last.index[0] - node.index[0]))
+			xValues *= 10
 			yValues = int(math.fabs(self._last.index[1] - node.index[1]))
-			if xValues > yValues:
-				node.hValue = 14 * yValues + 10 * (xValues - yValues)
-			else:
-				node.hValue = 14 * xValues + 10 * (xValues + yValues)
-		print("Node H: ", node.hValue)
+			yValues *= 10
+			node.hValue = xValues + yValues
+			
+		if node in self.ROUTE:
+			node._color = Teal
+			#if xValues > yValues:
+			#	node.hValue = 14 * yValues + 10 * (xValues - yValues)
+			#else:
+			#	node.hValue = 14 * xValues + 10 * (xValues + yValues)
 			
 	def Active(self):
-	#	self.Reset()
+		self.Reset()
 		open = self.OPENLIST
 		close = self.CLOSELIST
 		start = self._first
+		finish = self._last
 		open.append(start)
 		print(open)
 		
 		while open:
 			open.sort(key = lambda x : x.fValue)
 			CurrentNode = open[0]
+			#yield CurrentNode
+			
+			if finish in open:
+				self.ROUTE = self.GetRoute(finish)
+				break;
 			
 			open.remove(CurrentNode)
 			close.append(CurrentNode)
@@ -79,38 +94,42 @@ class AStarPath(object):
 				if adj.traverse and adj not in close:
 					if adj not in open:
 						open.append(adj)
+						#yield adj
 						adj.parental = CurrentNode
 						adj.gValue = 10 if i < 4 else 14
+					
 					else:
-						adj.parental = CurrentNode
-						adj.gValue = 10 if i < 4 else 14
-						movecost = 1.414 + adj.gValue
+						move = 10 if i < 4 else 14
+						movecost = move + adj.gValue
+					
 						if movecost < adj.gValue:
-							adj.parental = self._last
+							adj.parental = CurrentNode
 							adj.gValue = movecost
+
 					i = i + 1
-			if self._last is open:
-				self.ROUTE = self.GetRoute(self._last)
-				break;
+
+			#if self._last is open:
+			#	self.ROUTE = self.GetRoute(self._last)
+			#	break;
 				
 	def TestStart(self):
 		self.CurrentNode = self._first
 		
 	def GetRoute(self, node):
-		path = self.CLOSELIST
+		path = []
 		CurrentNode = node
-		while(CurrentNode != self._last):
+		while(CurrentNode != self._first):
 			path.append(CurrentNode.parental)
 			CurrentNode = CurrentNode.parental
+			CurrentNode._color = Teal
 
-			break;
+			
 		return path
 		
 	def SetAdjacents(self, node):
 		if node.adjacents:
 			node.adjacents = []
 		rows = self.xRows
-		columns = self.yColumns
 		bottom  = node.id + 1
 		top = node.id - 1
 		right = node.id + rows
