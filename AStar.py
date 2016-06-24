@@ -2,25 +2,7 @@
 import math
 from math import *
 
-Lime =(0,255,0)
-Cyan =(0,255,255)
-Magenta =(255,0,255)
-Silver =(192,192,192)
-Maroon =(128,0,0)
-Olive =(128,128,0)
 Teal =(0,128,128)
-Navy =(0,0,128)
-Sky = (128, 128, 255)
-Red = (255, 0, 0)
-Orange = (255, 165, 0)
-Yellow = (255, 255, 0)
-Green = (0, 255, 0)
-Blue = (0, 0, 255)
-Indigo = (75, 0, 130)
-Violet = (238, 130, 238)
-Black = (0, 0, 0)
-White = (255, 255, 255)
-Grey = (128, 128, 128)
 
 class AStarPath(object):
 	def __init__(self, Space, Beginning, End, area):
@@ -52,22 +34,6 @@ class AStarPath(object):
 			node.hValue = 0
 			node.gValue = 0
 			node.fValue = 0
-		for x in self._plot:
-			node = self._plot[x]
-			self.SetAdjacents(node)
-			
-			xValues = int(math.fabs(self._last.index[0] - node.index[0]))
-			xValues *= 10
-			yValues = int(math.fabs(self._last.index[1] - node.index[1]))
-			yValues *= 10
-			node.hValue = xValues + yValues
-			
-		if node in self.ROUTE:
-			node._color = Teal
-			#if xValues > yValues:
-			#	node.hValue = 14 * yValues + 10 * (xValues - yValues)
-			#else:
-			#	node.hValue = 14 * xValues + 10 * (xValues + yValues)
 			
 	def Active(self):
 		self.Reset()
@@ -76,17 +42,24 @@ class AStarPath(object):
 		start = self._first
 		finish = self._last
 		open.append(start)
-		print(open)
 		
 		while open:
 			open.sort(key = lambda x : x.fValue)
 			CurrentNode = open[0]
-			#yield CurrentNode
 			
 			if finish in open:
 				self.ROUTE = self.GetRoute(finish)
 				break;
+			for x in self._plot:
+				node = self._plot[x]
+				self.SetAdjacents(node)
 			
+				xValues = int(math.fabs(self._last.index[0] - node.index[0]))
+				xValues *= 10
+				yValues = int(math.fabs(self._last.index[1] - node.index[1]))
+				yValues *= 10
+				node.hValue = xValues + yValues
+
 			open.remove(CurrentNode)
 			close.append(CurrentNode)
 			i = 0
@@ -94,7 +67,6 @@ class AStarPath(object):
 				if adj.traverse and adj not in close:
 					if adj not in open:
 						open.append(adj)
-						#yield adj
 						adj.parental = CurrentNode
 						adj.gValue = 10 if i < 4 else 14
 					
@@ -107,10 +79,6 @@ class AStarPath(object):
 							adj.gValue = movecost
 
 					i = i + 1
-
-			#if self._last is open:
-			#	self.ROUTE = self.GetRoute(self._last)
-			#	break;
 				
 	def TestStart(self):
 		self.CurrentNode = self._first
