@@ -64,11 +64,11 @@ class Points(object):
 	@gValue.setter
 	def gValue(self, value):
 		self._gValue = value
-	
+		self._fValue = self._gValue + self._hValue
 	@hValue.setter
 	def hValue(self, value):
 		self._hValue = value
-		self._fValue = self._gValue + self._hValue
+		
 	
 	@property
 	def Colors(self):
@@ -84,9 +84,22 @@ class Points(object):
 			self._color = value
 			self.marked = True
 
-	def drawing(self, screen):
+	def drawing(self, screen, font, init = True, text = True):
 		self.placement.fill(self._color)
 		screen.blit(self.placement, self.screenPosition)
+		if self.traverse == True:
+			textf = font.render("F = " + str(self.fValue), True, (Violet))
+			textg = font.render("G = " + str(self.gValue), True, (Violet))
+			texth = font.render("H = " + str(self.hValue), True, (Violet))
+			textfpos =  (self.x + 1, self.y)
+			textgpos = (self.x + 1, self.y + self.DIMENSIONS - 20)
+			texthpos = (self.x + 1, self.y + self.DIMENSIONS - 10)
+			
+			if init and text:
+				screen.blit(textf, textfpos)
+				screen.blit(textgh, textghpos)
+				screen.blit(textg, textgpos)
+				screen.blit(texth, texthpos)
 	
 	def onClick(self, position):
 		oldColor = self._color

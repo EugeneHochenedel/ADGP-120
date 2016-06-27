@@ -15,8 +15,8 @@ class AStarPath(object):
 		self._current = self._first
 		self.xRows = area[0]
 		self.yColumns = area [1]
-		
-		self.Reset()
+
+		self.Values()
 	
 	@property
 	def CurrentNode(self, value):
@@ -27,16 +27,16 @@ class AStarPath(object):
 		self._current = value
 		
 		
-	def Reset(self):
+	def Values(self):
 		for x in self._plot:
 			node = self._plot[x]
 			node.parental = None
 			node.hValue = 0
 			node.gValue = 0
 			node.fValue = 0
-			
+	
 	def Active(self):
-		self.Reset()
+		self.Values()
 		open = self.OPENLIST
 		close = self.CLOSELIST
 		start = self._first
@@ -47,51 +47,64 @@ class AStarPath(object):
 			open.sort(key = lambda x : x.fValue)
 			CurrentNode = open[0]
 			
-			if finish in open:
+			if finish in close:
 				self.ROUTE = self.GetRoute(finish)
 				break;
+				
 			for x in self._plot:
 				node = self._plot[x]
 				self.SetAdjacents(node)
 			
-				xValues = int(math.fabs(self._last.index[0] - node.index[0]))
-				xValues *= 10
-				yValues = int(math.fabs(self._last.index[1] - node.index[1]))
-				yValues *= 10
-				node.hValue = xValues + yValues
+				xValues = abs(finish.index[0] - node.index[0])
+				yValues = abs(finish.index[1] - node.index[1])
+				node.hValue = 10*(xValues + yValues)
 
 			open.remove(CurrentNode)
+			#del open[:]
 			close.append(CurrentNode)
-			i = 0
+
 			for adj in CurrentNode.adjacents:
 				if adj.traverse and adj not in close:
 					if adj not in open:
-						open.append(adj)
 						adj.parental = CurrentNode
-						adj.gValue = 10 if i < 4 else 14
-					
-					else:
-						move = 10 if i < 4 else 14
-						movecost = move + adj.gValue
-					
-						if movecost < adj.gValue:
-							adj.parental = CurrentNode
-							adj.gValue = movecost
+						#open.append(adj)
+						
+						if abs(CurrentNode.id - adj.id) == 20 or abs(CurrentNode.id - adj.id) == 1:
+							adj.gValue = 10 + CurrentNode.gValue
+							
+						else:
+							adj.gValue = 14 + CurrentNode.gValue
+							
+						open.append(adj)
 
-					i = i + 1
-				
-	def TestStart(self):
-		self.CurrentNode = self._first
-		
+					elif adj in open:
+				#		if adj.gValue < CurrentNode.gValue:
+							
+						if abs(CurrentNode.id - adj.id) == 20 or abs(CurrentNode.id - adj.id) == 1:
+							move = 10  + adj.gValue
+							if move < adj.gValue:
+								adj.parental = CurrentNode
+								adj.gValue = move
+#							movecost = move + adj.gValue
+							
+						else:
+							move = 14  + adj.gValue
+#							movecost = move + adj.gValue
+							
+							if move < adj.gValue:
+								adj.parental = CurrentNode
+								adj.gValue = move
+		#del open[:]
+
+
 	def GetRoute(self, node):
 		path = []
 		CurrentNode = node
-		while(CurrentNode != self._first):
+		while(CurrentNode is not self._first):
 			path.append(CurrentNode.parental)
 			CurrentNode = CurrentNode.parental
 			CurrentNode._color = Teal
 
-			
 		return path
 		
 	def SetAdjacents(self, node):
@@ -106,11 +119,12 @@ class AStarPath(object):
 		bRight = right + 1
 		tLeft = left - 1
 		bLeft = left + 1
-		adjs = [top, bottom, left, right, tLeft, bLeft, tRight, bRight]
+		adjs = [top, bottom, left, right, tLeft, tRight, bLeft, bRight]
 		for i in adjs:
 			if i in self._plot:
 				if self._plot[i].traverse:
 					node.adjacents.append(self._plot[i])
+		return node.adjacents
 
 #Pseudocode
 '''
@@ -154,7 +168,6 @@ class AStarPath(object):
 '''
 #Pseudocode Mr. Matt posted
 '''
-	Used for Run?
 	List Astar(S, D, Space):
 		Add S to OL //Open List
 		Set C to LowestF in OL //C is current node
