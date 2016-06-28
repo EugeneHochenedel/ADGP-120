@@ -60,41 +60,31 @@ class AStarPath(object):
 				node.hValue = 10*(xValues + yValues)
 
 			open.remove(CurrentNode)
-			#del open[:]
 			close.append(CurrentNode)
 
 			for adj in CurrentNode.adjacents:
 				if adj.traverse and adj not in close:
 					if adj not in open:
 						adj.parental = CurrentNode
-						#open.append(adj)
+						open.append(adj)
 						
 						if abs(CurrentNode.id - adj.id) == 20 or abs(CurrentNode.id - adj.id) == 1:
-							adj.gValue = 10 + CurrentNode.gValue
+							adj.gValue = 10
 							
 						else:
-							adj.gValue = 14 + CurrentNode.gValue
-							
-						open.append(adj)
+							adj.gValue = 14
 
 					elif adj in open:
-				#		if adj.gValue < CurrentNode.gValue:
-							
 						if abs(CurrentNode.id - adj.id) == 20 or abs(CurrentNode.id - adj.id) == 1:
-							move = 10  + adj.gValue
-							if move < adj.gValue:
-								adj.parental = CurrentNode
-								adj.gValue = move
-#							movecost = move + adj.gValue
+							move = 10  + CurrentNode.gValue
 							
 						else:
-							move = 14  + adj.gValue
-#							movecost = move + adj.gValue
+							move = 14  + CurrentNode.gValue
 							
 							if move < adj.gValue:
 								adj.parental = CurrentNode
 								adj.gValue = move
-		#del open[:]
+
 
 
 	def GetRoute(self, node):
@@ -103,7 +93,7 @@ class AStarPath(object):
 		while(CurrentNode is not self._first):
 			path.append(CurrentNode.parental)
 			CurrentNode = CurrentNode.parental
-			CurrentNode._color = Teal
+			CurrentNode.colors = Teal
 
 		return path
 		

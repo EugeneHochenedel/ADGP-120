@@ -31,8 +31,8 @@ class Points(object):
 		self.screenPosition = (self.x, self.y)
 		self.square = Rect(self.x, self.y, self.DIMENSIONS, self.DIMENSIONS)
 		self.placement = pygame.Surface((self.DIMENSIONS, self.DIMENSIONS))
-		self.marked = False
-		self._color = White
+
+		self.colors = White
 		
 	@property
 	def traverse(self):
@@ -41,9 +41,9 @@ class Points(object):
 	def traverse(self, value):
 		self._passable = value
 		if value == True:
-			self._color = White
+			self.colors = White
 		elif value == False:
-			self._color = Red
+			self.colors = Red
 
 	@property
 	def fValue(self):
@@ -69,23 +69,17 @@ class Points(object):
 	def hValue(self, value):
 		self._hValue = value
 		
-	
-	@property
-	def Colors(self):
-		return self._color
-	
-	@Colors.setter
-	def Colors(self, value):
-		self._color = value
+	def setColors(self, value):
+		self.colors = value
 		if value is White:
-			self._color = value
-			self.marked = False
-		elif value is Red:
-			self._color = value
-			self.marked = True
+			self.colors = value
 
+		elif value is Red:
+			self.colors = value
+		return self.colors
+		
 	def drawing(self, screen, font, init = True, text = True):
-		self.placement.fill(self._color)
+		self.placement.fill(self.colors)
 		screen.blit(self.placement, self.screenPosition)
 		if self.traverse == True:
 			textf = font.render("F = " + str(self.fValue), True, (Violet))
@@ -97,16 +91,11 @@ class Points(object):
 			
 			if init and text:
 				screen.blit(textf, textfpos)
-				screen.blit(textgh, textghpos)
 				screen.blit(textg, textgpos)
 				screen.blit(texth, texthpos)
 	
 	def onClick(self, position):
-		oldColor = self._color
+		oldColor = self.colors
 		x, y = position[0], position[1]
-		if(x > self.square.left and x < self.square.right and y > self.square.top and y < self.square.bottom):
-			if not self.marked:
-				return self
-			else:
-				self._color = oldColor
-				return self
+		if(x >= self.square.left and x <= self.square.right and y >= self.square.top and y <= self.square.bottom):
+			return self

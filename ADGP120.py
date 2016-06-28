@@ -48,7 +48,7 @@ class Game:
 				
 				if(xWall or yWall):
 					n.traverse = False
-					n.Colors
+					n.colors
 				
 				
 				self.selection.append(n.onClick)
@@ -59,9 +59,9 @@ class Game:
 		for i in range(50 * 2):
 			rng = random.randint(0,(self.XROW-1) * (self.YCOL-1))
 			self.search_space[rng].traverse = False
-			self.search_space[rng].Colors
+			self.search_space[rng].colors
 			
-			
+		pygame.init()
 			
 		pad = (5,5)
 		screen_width = self.YCOL * (pad[0] + self.WIDTH) + pad[1]
@@ -79,6 +79,7 @@ class Game:
 		self.goal = Points(x, y, id)
 		self.defense = None
 		self.runner = None
+		self.general = None
 	
 		self.background = pygame.Surface(self.screen.get_size())
 		self.background = self.background.convert()
@@ -98,8 +99,9 @@ class Game:
 								init = False
 								if self.runner:
 									self.runner.Values()
+									self.general = None
 										
-								if not review.marked:
+								if not self.init:
 									self.start = review
 								#	review.details()
 									review.traverse = True
@@ -108,7 +110,7 @@ class Game:
 								self.init = True
 								self.defense = review
 								review.traverse = not review.traverse
-								self.defense.Colors
+								self.defense.colors
 							
 							if event.button == 3:
 								if self.start is None:
@@ -120,7 +122,7 @@ class Game:
 									review.traverse = True
 											
 									self.runner = AStarPath(self.search_space, self.start, self.goal,(self.XROW,self.YCOL))
-									self.runner.Active()
+									self.general = self.runner.Active()
 										
 				if event.type == pygame.KEYDOWN:
 					if event.key == pygame.K_ESCAPE:
@@ -134,8 +136,10 @@ class Game:
 			
 			for i in self.search_space:
 				self.search_space[i].drawing(self.background, self.font1, self.init, debug)
-				self.start._color = Green
-				self.goal._color = Grey
+			
+			for i in self.search_space:
+				self.start.colors = Green
+				self.goal.colors = Grey
 			
 				Nodes = self.search_space[i]
 				if Nodes.parental:
@@ -144,7 +148,7 @@ class Game:
 					newrect = Nodes.square.inflate((Nodes.DIMENSIONS/1.25) * -1,(Nodes.DIMENSIONS/1.25) * -1)
 					pygame.draw.ellipse(self.screen, (Blue), newrect, 1)
 					pygame.draw.aaline(self.screen, (Olive), selfmid, parentmid, 5)
-				
+					
 			if(debug):
 				debugText = self.font1.render("DEBUG", True, Olive)
 				self.screen.blit(debugText,(0,0))
