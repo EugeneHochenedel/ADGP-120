@@ -31,10 +31,11 @@ class Game:
 		self.WIDTH = 30
 		self.HEIGHT = 30
 		
+		#Generates nodes that cannot be accessed
 		for x in range(self.YCOL):
 			for y in range(self.XROW):
 				
-				n = Points(x, y, id)
+				node = Points(x, y, id)
 				
 				if(y % self.XROW == 0 or y % self.XROW == self.XROW - 1):
 					xWall = True
@@ -47,13 +48,12 @@ class Game:
 					yWall = False
 				
 				if(xWall or yWall):
-					n.traverse = False
-					n.colors
+					node.traverse = False
+					node.colors
 				
+				self.selection.append(node.onClick)
 				
-				self.selection.append(n.onClick)
-				
-				self.search_space[id] = n
+				self.search_space[id] = node
 				id+=1
 		
 		for i in range(50 * 2):
@@ -101,10 +101,11 @@ class Game:
 									self.runner.Values()
 									self.general = None
 										
-								if not self.init:
+								if review.traverse == True:
 									self.start = review
-								#	review.details()
+									review.parental
 									review.traverse = True
+
 							
 							if event.button == 2:
 								self.init = True
@@ -151,7 +152,7 @@ class Game:
 					
 			if(debug):
 				debugText = self.font1.render("DEBUG", True, Olive)
-				self.screen.blit(debugText,(0,0))
+				self.screen.blit(self.background,(0,0))
 			
 			pygame.display.flip()
 			
