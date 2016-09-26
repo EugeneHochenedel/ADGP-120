@@ -1,120 +1,64 @@
-#This script will contain the code specific to the A* pathing
-import math
+import math, Nodes
 from math import *
+from Nodes import *
 
-Teal =(0,128,128)
+Red = (255, 0, 0)
+Orange = (255, 165, 0)
+Yellow = (255, 255, 0)
+Green = (0, 255, 0)
+Blue = (0, 0, 255)
+Indigo = (75, 0, 130)
+Violet = (238, 130, 238)
+Black = (0, 0, 0)
+White = (255, 255, 255)
+Grey = (128, 128, 128)
+Olive =(128,128,0)
 
-class AStarPath(object):
-	def __init__(self, Space, Beginning, End, area):
-		self.OPENLIST = []
-		self.CLOSELIST = []
+class Algorithm(object):
+	def __init__(self, Looking, Beg, Fin, area):
+		self._searchArea = Looking
+		self._initalPoint = Beg
+		self._finalPoint = Fin
+		self._currentPoint = None
+		self._Values = None
+		self.XROWS = area[0]
+		self.YCOLUMNS = area[1]
+		self.OPEN = []
+		self.CLOSE = []
 		self.ROUTE = []
-		self._plot = Space
-		self._first = Beginning
-		self._last = End
-		self._current = self._first
-		self.xRows = area[0]
-		self.yColumns = area [1]
-
-		self.Values()
-	
-	@property
-	def CurrentNode(self, value):
-		return self._current
-	
-	@CurrentNode.setter
-	def CurrentNode(self, value):
-		self._current = value
 		
+		self.screenPosition = (self.x, self.y)
 		
-	def Values(self):
-		for x in self._plot:
-			node = self._plot[x]
-			node.parental = None
-			node.hValue = 0
-			node.gValue = 0
-			node.fValue = 0
+		self.square = pygame.Rect(self.x, self.y, self.DIMENSIONS, self.DIMENSIONS)
+		self.placement = pygame.Surface((self.DIMENSIONS, self.DIMENSIONS))
+		
+		self.adjacents = []
 	
-	def Active(self):
-		self.Values()
-		open = self.OPENLIST
-		close = self.CLOSELIST
-		start = self._first
-		finish = self._last
-		open.append(start)
+	def CurrentCell(self, value):
+		self._currentPoint = value
+		return self._currentPoint
 		
-		while open:
-			open.sort(key = lambda x : x.fValue)
-			CurrentNode = open[0]
-			
-			if finish in close:
-				self.ROUTE = self.GetRoute(finish)
-				break;
-				
-			for x in self._plot:
-				node = self._plot[x]
-				self.SetAdjacents(node)
-			
-				xValues = abs(finish.index[0] - node.index[0])
-				yValues = abs(finish.index[1] - node.index[1])
-				node.hValue = 10*(xValues + yValues)
-
-			open.remove(CurrentNode)
-			close.append(CurrentNode)
-
-			for adj in CurrentNode.adjacents:
-				if adj.traverse and adj not in close:
-					if adj not in open:
-						adj.parental = CurrentNode
-						open.append(adj)
-						
-						if abs(CurrentNode.id - adj.id) == 20 or abs(CurrentNode.id - adj.id) == 1:
-							adj.gValue = 10
-							
-						else:
-							adj.gValue = 14
-
-					elif adj in open:
-						if abs(CurrentNode.id - adj.id) == 20 or abs(CurrentNode.id - adj.id) == 1:
-							move = 10  + CurrentNode.gValue
-							
-						else:
-							move = 14  + CurrentNode.gValue
-							
-							if move < adj.gValue:
-								adj.parental = CurrentNode
-								adj.gValue = move
-
-
-
-	def GetRoute(self, node):
+	def movementCost(self):
+		return self._gValue
+	
+	def getRoutes(self, node):
 		path = []
-		CurrentNode = node
-		while(CurrentNode is not self._first):
-			path.append(CurrentNode.parental)
-			CurrentNode = CurrentNode.parental
-			CurrentNode.colors = Teal
-
-		return path
+		CurrentCell = node
+		if(self._finalPoint == node):
+			return path[self._finalPoint]
+		if CurrentCell is not self._initalPoint:
+			return None
+		while CurrentCell is not self._initalPoint:
+			path.append(CurrentCell.parental)
+			CurrentCell = path[0]
+			
 		
-	def SetAdjacents(self, node):
-		if node.adjacents:
-			node.adjacents = []
-		rows = self.xRows
-		bottom  = node.id + 1
-		top = node.id - 1
-		right = node.id + rows
-		left = node.id - rows
-		tRight = right - 1
-		bRight = right + 1
-		tLeft = left - 1
-		bLeft = left + 1
-		adjs = [top, bottom, left, right, tLeft, tRight, bLeft, bRight]
-		for i in adjs:
-			if i in self._plot:
-				if self._plot[i].traverse:
-					node.adjacents.append(self._plot[i])
-		return node.adjacents
+	def Active(self):
+		self.OPEN.append(start)
+		
+		while self.OPEN[0] is not self._finalPoint:
+			self.OPEN.sort(keys = lambda x : x.fValue)
+			CurrentCell = self.OPEN[0]
 
 #Pseudocode
 '''

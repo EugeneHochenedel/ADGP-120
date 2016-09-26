@@ -16,87 +16,110 @@ White = (255, 255, 255)
 Grey = (128, 128, 128)
 Olive =(128,128,0)
 
-class Points(object):
-	def __init__(self, x, y, id):
-		self.adjacents = []
-		self.parental = None
-		self._passable = True
-		self._gValue = 0
-		self._hValue = 0
-		self._fValue = 0
-		self.DIMENSIONS = 30
-		self.id = id
-		self.index = (x, y)
-		self.x = (self.DIMENSIONS + 5) * x + 5
-		self.y = (self.DIMENSIONS + 5) * y + 5
-		self.screenPosition = (self.x, self.y)
-		self.square = Rect(self.x, self.y, self.DIMENSIONS, self.DIMENSIONS)
-		self.placement = pygame.Surface((self.DIMENSIONS, self.DIMENSIONS))
-
-		self.colors = White
+class Node:
+	def __init__(self, index):
 		
-	@property
-	def traverse(self):
-		return self._passable
-	@traverse.setter
-	def traverse(self, value):
-		self._passable = value
-		if value == True:
-			self.colors = White
-		elif value == False:
-			self.colors = Red
-
-	@property
-	def fValue(self):
-		return self._fValue
-	
-	@property
-	def hValue(self):
-		return self._hValue
+		self.graph = []
+		self.id = index
+		#self.Nodes = Total[0]
+		#self.Near = []
+		self.size = 3
+		self.top = 0
+		self.bottom = None
+		self.left = None
+		self.right = 0
+		self.tLeft = None
+		self.bLeft = 0
+		self.tRight = 0
+		self.bRight = 0
 		
-	@property
-	def gValue(self):
-		return self._gValue
-	
-	@fValue.setter
-	def fValue(self, value):
-		self._fValue = value
-	
-	@gValue.setter
-	def gValue(self, value):
-		self._gValue = value
-		self._fValue = self._gValue + self._hValue
-	@hValue.setter
-	def hValue(self, value):
-		self._hValue = value
-		
-	def setColors(self, value):
-		self.colors = value
-		if value is White:
-			self.colors = value
-
-		elif value is Red:
-			self.colors = value
-		return self.colors
-		
-	def drawing(self, screen, font, init = True, text = True):
-		self.placement.fill(self.colors)
-		screen.blit(self.placement, self.screenPosition)
-		if self.traverse == True:
-			textf = font.render("F = " + str(self.fValue), True, (Violet))
-			textg = font.render("G = " + str(self.gValue), True, (Violet))
-			texth = font.render("H = " + str(self.hValue), True, (Violet))
-			textfpos =  (self.x + 1, self.y)
-			textgpos = (self.x + 1, self.y + self.DIMENSIONS - 20)
-			texthpos = (self.x + 1, self.y + self.DIMENSIONS - 10)
+	def Graph():
+		for i in range(0, self.size*self.size):
+			space = Node(i)
+			graph.append(space)
 			
-			if init and text:
-				screen.blit(textf, textfpos)
-				screen.blit(textg, textgpos)
-				screen.blit(texth, texthpos)
+	def Immediate(self, node):
+		for node in self.graph:
+		#	i = self
+			if (node.id - self.size) < 0:
+				node.top = graph[self.id]
+				print(self.id)
+				return self.top
+				
+			else:
+				node.top = graph[self.id - self.size]
+				print(self.id)
+				return self.top
+			if(node.id + self.size) > self.size*self.size:
+				node.bottom = graph[self.id]
+				print(self.id)
+				return self.bottom
+			else:
+				node.bottom = graph[self.id + self.size]
+				print(self.id)
+				return self.bottom
+			if (node.id % self.size == 0 or node.id == 0):
+				node.left = graph[self.id]
+				print(self.id)
+				return self.left
+			else:
+				node.left = graph[self.id - 1]
+				print(self.id)
+				return self.left
+			if (node.id + 1) % self.size == 0:
+				node.right = graph[self.id]
+				print(self.id)
+				return self.right
+			else:
+				node.right = graph[self.id + 1]
+				print(self.id)
+				return self.right
+			
+		
+		
+	def Diag():
+		for i in graph:
+			i.tLeft = graph[i.top.left]
+			i.bLeft = graph[i.bottom.left]
+			i.tRight = graph[i.top.right]
+			i.bRight = graph[i.bottom.right]
 	
-	def onClick(self, position):
-		oldColor = self.colors
-		x, y = position[0], position[1]
-		if(x >= self.square.left and x <= self.square.right and y >= self.square.top and y <= self.square.bottom):
-			return self
+	
+	'''def Neighbors(self, node):
+		checking = self.Nodes
+		top = node.id - 3
+		bottom = node.id + 3
+		left = node.id - 1
+		right = node.id + 1
+		tLeft = top - 1
+		tRight = top + 1
+		bLeft = bottom - 1
+		bRight = bottom + 1
+		Nay = [top, bottom, left, right, tLeft, bLeft, tRight, bRight]
+		for i in Nay:
+			if i not in self.Near:
+				checking.append(i)
+		return checking'''
+				
+def Main():
+	graph = []
+	for i in range(0,9):
+		n = Node(i)
+		graph.append(n)
+		
+	selected = input("Select a value between 0 and 9: ")
+	#if selected in graph:
+	#	print(selected.right)
+	
+	for i in graph:
+		if i.id is selected:
+			i.Immediate(i.id + 1)
+			print(i.Immediate(i.id))
+		else:	
+			print(i.id)
+		
+		#print(" ")
+		
+	#input = raw_input("pause")
+	
+Main()
